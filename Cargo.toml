@@ -10,3 +10,5 @@ serde_derive = "1.0.136"
 serde = "1.0.136"
 tokio = { version = "1.16.1", features = ["full"] }
 reqwest = { version = "0.11.9", features = ["json"] }
+openssl = "0.10.38"
+openssl-probe = "0.1.5"
