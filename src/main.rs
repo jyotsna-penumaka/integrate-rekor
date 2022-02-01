@@ -36,6 +36,7 @@ pub struct PublicKey {
 #[serde(rename_all = "camelCase")]
 pub struct Data {
     pub hash: Hash,
+    pub url: String
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -43,12 +44,6 @@ pub struct Data {
 pub struct Hash {
     pub algorithm: String,
     pub value: String,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Post {
-    uuid: Uuid
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -98,36 +93,37 @@ async fn main() -> Result<(), reqwest::Error> {
 
 
     openssl_probe::init_ssl_cert_env_vars();
-
+    
     let new_post = Root{
         api_version: "0.0.1".to_string(),
         kind: "rekord".to_string(),
         spec: Spec{
             signature: Signature{
-                format: "x509".to_string(),
-                content: "LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWcvdmVTYzRvbHBLdE1vT1I3cndmOFZHSHpoaApnMEZJb0R0YzVSMkpsdHpHZ0FBQUFFWm1sc1pRQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUJjQ2t0Z0MxWWprb3dKdHBseXBDSDQ2anEyQmRoNmR6anR0eWtHZVF5K0o1eHp0cVR6a2NDMFhIYUVhcU51YzUKcTFzTlFMY2Q4SDR4M3FKSlRDQlFvTwotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K".to_string(),
+                format: "ssh".to_string(),
+                content: "LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWcvdmVTYzRvbHBLdE1vT1I3cndmOFZHSHpoaApnMEZJb0R0YzVSMkpsdHpHZ0FBQUFFWm1sc1pRQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUQ4Mk5Fb0FmUisyR2YweU1Vb1RxUzJnN1BLRXZURVFoRndHT0JiZjBYYjJnRVYwWW9Cb0ZLNVVhWGZOZEVvb0wKUWErbHRaaHMxRnoxWTZIYW9idE9zRAotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K".to_string(),
                 public_key: PublicKey{
                     content: "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSVA3M2tuT0tKYVNyVEtEa2U2OEgvRlJoODRZWU5CU0tBN1hPVWRpWmJjeG8gdGVzdEByZWtvci5kZXYK".to_string(),
                 },
             },
             data: Data{
+                url: "https://raw.githubusercontent.com/jyotsna-penumaka/integrate-rekor/main/README.md".to_string(),
                 hash: Hash{
                     algorithm: "sha256".to_string(),
-                    value: "13651bac2801b9ae86fd860c79dbbc6a01953dffd87683d374efece8d89db814".to_string(),
+                    value: "4a50090d4d3a91cb9f3f7887f396ed93563f639e6d47b9de718a2971389d7c33".to_string(),
                 },
             },
         },
     };
-    let new_post: Post = reqwest::Client::new()
+    let new_post = reqwest::Client::new()
         .post("https://rekor.sigstore.dev/api/v1/log/entries")
         .json(&new_post)
         .send()
         .await?
-        .json()
+        .text()
         .await?;
 
 
-    println!("{:#?}", new_post);
+    println!("{:#?}", "uuid: ".to_string() + &new_post);
     // Post {
     //     id: Some(
     //         101
