@@ -48,48 +48,23 @@ pub struct Hash {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Post {
-    additionalProp1: AdditionalProp,
-    additionalProp2: AdditionalProp,
-    additionalProp3: AdditionalProp,
+    uuid: Uuid
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AdditionalProp {
-    logID: String,
-    logIndex: i64,
+pub struct Uuid {
     body: String,
-    integratedTime: i64,
-    attestation: Attestation,
-    verification: Verification,
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Body {
-    additionalProp1: Box<AdditionalProp>
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Attestation {
-    data: String
+    integrated_time: i64,
+    log_i_d: String,
+    log_index: i64,
+    verification: Verification
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Verification {
-    inclusionProof: InclusionProof,
-    signedEntryTimestamp: String
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct InclusionProof {
-    logIndex: i64,
-    rootHash: String,
-    treeSize: i64,
-    hashes: Vec<String>
+    signed_entry_timestamp: String
 }
 
 fn get_github_token() -> String {
@@ -115,9 +90,9 @@ async fn main() -> Result<(), reqwest::Error> {
         spec: Spec{
             signature: Signature{
                 format: "x509".to_string(),
-                content: "MEUCIQC4Pjpjl++jS+nYODmQwisPSs5SpHuLlitLJ6PNnVUglgIgdhxUIO9BKMWAtLAppoPd++jaQJPMJCeqxuwcY+KHhnI=".to_string(),
+                content: "LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWcvdmVTYzRvbHBLdE1vT1I3cndmOFZHSHpoaApnMEZJb0R0YzVSMkpsdHpHZ0FBQUFFWm1sc1pRQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUJjQ2t0Z0MxWWprb3dKdHBseXBDSDQ2anEyQmRoNmR6anR0eWtHZVF5K0o1eHp0cVR6a2NDMFhIYUVhcU51YzUKcTFzTlFMY2Q4SDR4M3FKSlRDQlFvTwotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K".to_string(),
                 public_key: PublicKey{
-                    content: "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFWldZWExVNktPSmhkSDNGSUxSc1JsdW95cmZNOQorMnpPQmdaU1NJQnB6SVgxYytrYVp5OS9Ebkp0M2h3amZpRUZSeEQrbWJDZzAyeEZxaERMd1FUSmxBPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==".to_string(),
+                    content: "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSVA3M2tuT0tKYVNyVEtEa2U2OEgvRlJoODRZWU5CU0tBN1hPVWRpWmJjeG8gdGVzdEByZWtvci5kZXYK".to_string(),
                 },
             },
             data: Data{
@@ -149,71 +124,5 @@ async fn main() -> Result<(), reqwest::Error> {
     Ok(())
 }
 
-{
-	"api_version": "0.0.1",
-	"kind": "rekord",
-	"spec": {
-		"signature": {
-			"format": "x509",
-			"content": "MEUCIQC4Pjpjl++jS+nYODmQwisPSs5SpHuLlitLJ6PNnVUglgIgdhxUIO9BKMWAtLAppoPd++jaQJPMJCeqxuwcY+KHhnI=",
-			"public_key": {
-				"content": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFWldZWExVNktPSmhkSDNGSUxSc1JsdW95cmZNOQorMnpPQmdaU1NJQnB6SVgxYytrYVp5OS9Ebkp0M2h3amZpRUZSeEQrbWJDZzAyeEZxaERMd1FUSmxBPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=="
-			}
-		},
-		"data": {
-			"hash": {
-				"algorithm": "sha256",
-				"value": "13651bac2801b9ae86fd860c79dbbc6a01953dffd87683d374efece8d89db814"
-			}
-		}
-	}
-}
 
-curl -X 'POST' \
-  'https://rekor.sigstore.dev/api/v1/log/entries' \
-  -H 'accept: application/json;q=1' \
-  -H 'Content-Type: application/json' \
-  -d '{
-        "apiVersion": "0.0.1",
-        "kind": "rekord",
-        "spec": {
-                "signature": {
-                        "format": "x509",
-                        "content": "MEUCIQC4Pjpjl++jS+nYODmQwisPSs5SpHuLlitLJ6PNnVUglgIgdhxUIO9BKMWAtLAppoPd++jaQJPMJCeqxuwcY+KHhnI=",
-                        "publicKey": {
-                                "content": "LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFWldZWExVNktPSmhkSDNGSUxSc1JsdW95cmZNOQorMnpPQmdaU1NJQnB6SVgxYytrYVp5OS9Ebkp0M2h3amZpRUZSeEQrbWJDZzAyeEZxaERMd1FUSmxBPT0KLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg=="
-                        }
-                },
-                "data": {
-                        "hash": {
-                                "algorithm": "sha256",
-                                "value": "13651bac2801b9ae86fd860c79dbbc6a01953dffd87683d374efece8d89db814"
-                        }
-                }
-        }
-}'
 
-curl -X 'POST' \
-  'https://rekor.sigstore.dev/api/v1/log/entries' \
-  -H 'accept: application/json;q=1' \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "kind": "rekord",
-    "apiVersion": "0.0.1",
-    "spec": {
-        "Signature": {
-            "format": "ssh",
-            "Content": "-----BEGIN SSH SIGNATURE-----U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg/veSc4olpKtMoOR7rwf8VGHzhhg0FIoDtc5R2JltzGgAAAAEZmlsZQAAAAAAAAAGc2hhNTEyAAAAUwAAAAtzc2gtZWQyNTUxOQAAAEBcCktgC1YjkowJtplypCH46jq2Bdh6dzjttykGeQy+J5xztqTzkcC0XHaEaqNuc5q1sNQLcd8H4x3qJJTCBQoO-----END SSH SIGNATURE-----",
-            "publicKey": {
-                "content":"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIP73knOKJaSrTKDke68H/FRh84YYNBSKA7XOUdiZbcxo test@rekor.dev"
-             }
-        },
-        "data": {
-            "url": "https://raw.githubusercontent.com/jyotsna-penumaka/integrate-rekor/main/README.md",
-            "hash": {
-                "algorithm": "sha256",
-                "value": "46bd319d3590d2b4d7c7a27c99d32f7ea60a850ec3806351e04d161d014ecc01"
-            }
-        }
-    }
-}'
