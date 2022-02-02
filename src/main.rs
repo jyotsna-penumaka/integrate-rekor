@@ -124,21 +124,20 @@ async fn main() -> Result<(), reqwest::Error> {
         .text()
         .await?;
 
-    //let post = "{\"2e84d5ebb17f67449bd2f85c49686e1477ebdcee474d96ec85991b58ebfbfe5f\":{\"body\":\"eyJhcGlWZXJzaW9uIjoiMC4wLjEiLCJraW5kIjoicmVrb3JkIiwic3BlYyI6eyJkYXRhIjp7Imhhc2giOnsiYWxnb3JpdGhtIjoic2hhMjU2IiwidmFsdWUiOiIzNDE2ZWM3Mjg4YTM0NjY2YTZlYzcyYTEwNmQzOThhZDVmYzNkYzg1NDU2ZDIxYzkzYzExNmUzMGRlNzNmYTEyIn19LCJzaWduYXR1cmUiOnsiY29udGVudCI6IkxTMHRMUzFDUlVkSlRpQlRVMGdnVTBsSFRrRlVWVkpGTFMwdExTMEtWVEZPU1ZVd2JFaEJRVUZCUVZGQlFVRkVUVUZCUVVGTVl6Tk9iMHhYVm10TmFsVXhUVlJyUVVGQlFXY3ZkbVZUWXpSdmJIQkxkRTF2VDFJM2NuZG1PQXBXUjBoNmFHaG5NRVpKYjBSMFl6VlNNa3BzZEhwSFowRkJRVUZGV20xc2MxcFJRVUZCUVVGQlFVRkJSMk15YUdoT1ZFVjVRVUZCUVZWM1FVRkJRWFI2Q21NeVozUmFWMUY1VGxSVmVFOVJRVUZCUlVKb1lVWkhlVlZRYlcxb2RtUlhWbGczWjIxc05rZG9Wa3hpY0M5UVlVNVVNRmRJT0RGWE1YVjJiekEwTDI4S1dERnZPVTFzVWt4c1pqRkVOM3BDTDBWQlEzZzVNM0JVZDJJM1ZYWlNiMk5ZVUV0d1EwMVJUUW90TFMwdExVVk9SQ0JUVTBnZ1UwbEhUa0ZVVlZKRkxTMHRMUzBLIiwiZm9ybWF0Ijoic3NoIiwicHVibGljS2V5Ijp7ImNvbnRlbnQiOiJjM05vTFdWa01qVTFNVGtnUVVGQlFVTXpUbnBoUXpGc1drUkpNVTVVUlRWQlFVRkJTVkEzTTJ0dVQwdEtZVk55VkV0RWEyVTJPRWd2UmxKb09EUlpXVTVDVTB0Qk4xaFBWV1JwV21KamVHOEsifX19fQ==\",\"integratedTime\":1643769434,\"logID\":\"c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d\",\"logIndex\":1237607,\"verification\":{\"signedEntryTimestamp\":\"MEUCIGCdXlvz7V9a8ML83uE0VSUOj8zsTKAG8XDdUe0ls/CGAiEA7iZkg0/MQSas+TZCnzaFuAKAkIUQbIAucE35j1YXbnw=\"}}}\n";
-    let post = new_post;
-    //let string: &str = "Hello World";
-    let uuid: &str = &post[1..67];
-    let rest: &str = &post[69..post.len() - 2];
-    //let sum: &str = &(uuid.to_owned() + "," + &rest.to_owned());
-    
-    let sum = "{\"uuid\": ".to_string() + &(uuid.to_owned()) + "," + rest;
-    
-    //println!("{}", uuid);
-    //println!("{}", rest);
-    println!("{}", sum);
+    println!("{:#?}", new_post);
+    if (&new_post[..7] == "{\"code\""){
+        println!("Lets parse the response, there is no error :) ");
+        let post = new_post;
+        let uuid: &str = &post[1..67];
+        let rest: &str = &post[69..post.len() - 2];
+        let sum = "{\"uuid\": ".to_string() + &(uuid.to_owned()) + "," + rest;
 
-    let v: Result<Post, serde_json::Error> = serde_json::from_str(&sum);
-    println!("{:#?}", v);
+        let v: Result<Post, serde_json::Error> = serde_json::from_str(&sum);
+        println!("{:#?}", v);
+    }
+    else{
+        println!("There is an error! Cannot parse the response :( ");
+    }
 
     // Access parts of the data by indexing with square brackets.
     //println!("Please call {} at the number {}", v.body, v.integrated_time);
