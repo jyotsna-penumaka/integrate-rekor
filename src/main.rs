@@ -1,6 +1,5 @@
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
-use openssl::ssl::{SslMethod, SslConnector};
 use std::env;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -76,7 +75,7 @@ This is the response, I am trying to structure "Post" to read this in
         }
     }
 }
- */
+*/
 
 fn get_github_token() -> String {
     match env::var("GITHUB_AUTH_TOKEN") {
@@ -85,32 +84,23 @@ fn get_github_token() -> String {
     }
 }
 
-#[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
-
-
-    let mut builder = SslConnector::builder(SslMethod::tls()).unwrap(); 
-    builder.set_ca_file("fulcio.pem").expect("Can't find file");
-
-
-    openssl_probe::init_ssl_cert_env_vars();
-    
+async fn rekor_upload(api_version: String, kind: String, format: String, signature: String, public_key: String, url: String, algorithm: String, hash: String) -> Result<(), serde_json::Error> {
     let new_post = Root{
-        api_version: "0.0.1".to_string(),
-        kind: "rekord".to_string(),
+        api_version: api_version,
+        kind: kind,
         spec: Spec{
             signature: Signature{
-                format: "ssh".to_string(),
-                content: "LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWcvdmVTYzRvbHBLdE1vT1I3cndmOFZHSHpoaApnMEZJb0R0YzVSMkpsdHpHZ0FBQUFFWm1sc1pRQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUNha3VRS2dDUjBtSWtidkttSHRMQ0VrZzZNNXFjOXpMVTFsd2JWUlUrbndndkc3UmcxZWs2S05NUGRRSEk5NkwKbmFBL1AvS2xMZTdYQnh3ZEgwblFBSgotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K".to_string(),
+                format: format,
+                content: signature,
                 public_key: PublicKey{
-                    content: "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSVA3M2tuT0tKYVNyVEtEa2U2OEgvRlJoODRZWU5CU0tBN1hPVWRpWmJjeG8gdGVzdEByZWtvci5kZXYK".to_string(),
+                    content: public_key,
                 },
             },
             data: Data{
-                url: "https://raw.githubusercontent.com/jyotsna-penumaka/integrate-rekor/main/README.md".to_string(),
+                url: url,
                 hash: Hash{
-                    algorithm: "sha256".to_string(),
-                    value: "acb61195d200763d33e9373bab20e4a9d439c3ae6e7cd0dd1c8ade5199cce7cf".to_string(),
+                    algorithm: algorithm,
+                    value: hash,
                 },
             },
         },
@@ -121,9 +111,11 @@ async fn main() -> Result<(), reqwest::Error> {
         .header("Authorization", get_github_token())
         .json(&new_post)
         .send()
-        .await?
+        .await
+        .unwrap()
         .text()
-        .await?;
+        .await
+        .unwrap();
 
     println!("{:#?}", new_post);
     if &new_post[..7] != "{\"code\"" {
@@ -139,9 +131,21 @@ async fn main() -> Result<(), reqwest::Error> {
     else{
         println!("There is an error! Cannot parse the response :( ");
     }
-    
+
     Ok(())
 }
 
+#[tokio::main]
+async fn main() -> Result<(), reqwest::Error> {
+    let new_post = rekor_upload(
+        "0.0.1".to_string(),
+        "rekord".to_string(),
+        "ssh".to_string(),
+        "LS0tLS1CRUdJTiBTU0ggU0lHTkFUVVJFLS0tLS0KVTFOSVUwbEhBQUFBQVFBQUFETUFBQUFMYzNOb0xXVmtNalUxTVRrQUFBQWcvdmVTYzRvbHBLdE1vT1I3cndmOFZHSHpoaApnMEZJb0R0YzVSMkpsdHpHZ0FBQUFFWm1sc1pRQUFBQUFBQUFBR2MyaGhOVEV5QUFBQVV3QUFBQXR6YzJndFpXUXlOVFV4Ck9RQUFBRUFUL0VHUnNOMzE5NmJXcTFjeWV2dXNOTFAxUGxjdGlPRm1hZHRZcWZReGZmRURiVUhFM1JlYVBJRzR3ZmlZYVYKUFppQXIxeVdiOTlXQ2MrWEFNUzRFRgotLS0tLUVORCBTU0ggU0lHTkFUVVJFLS0tLS0K".to_string(),
+        "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSVA3M2tuT0tKYVNyVEtEa2U2OEgvRlJoODRZWU5CU0tBN1hPVWRpWmJjeG8gdGVzdEByZWtvci5kZXYK".to_string(),
+        "https://raw.githubusercontent.com/jyotsna-penumaka/integrate-rekor/main/README.md".to_string(),
+        "sha256".to_string(),
+        "86979c2797e6fb91b783a81f1d70c27579f5cc78120f2edec46625fe336df9b3".to_string()).await;
 
-
+    Ok(())
+}
