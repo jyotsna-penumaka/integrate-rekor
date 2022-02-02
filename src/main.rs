@@ -118,6 +118,7 @@ async fn main() -> Result<(), reqwest::Error> {
 
     let new_post = reqwest::Client::new()
         .post("https://rekor.sigstore.dev/api/v1/log/entries")
+        .header("Authorization", get_github_token())
         .json(&new_post)
         .send()
         .await?
@@ -125,7 +126,7 @@ async fn main() -> Result<(), reqwest::Error> {
         .await?;
 
     println!("{:#?}", new_post);
-    if (&new_post[..7] == "{\"code\""){
+    if &new_post[..7] != "{\"code\"" {
         println!("Lets parse the response, there is no error :) ");
         let post = new_post;
         let uuid: &str = &post[1..67];
@@ -138,17 +139,7 @@ async fn main() -> Result<(), reqwest::Error> {
     else{
         println!("There is an error! Cannot parse the response :( ");
     }
-
-    // Access parts of the data by indexing with square brackets.
-    //println!("Please call {} at the number {}", v.body, v.integrated_time);
-    // Post {
-    //     id: Some(
-    //         101
-    //     ),
-    //     title: "Reqwest.rs",
-    //     body: "https://docs.rs/reqwest",
-    //     user_id: 1
-    // }
+    
     Ok(())
 }
 
