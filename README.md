@@ -8,3 +8,5 @@
 - cat README.md.sig | base64 -w 0
 
 Rekor + sigstore-rs
+
+New Change
